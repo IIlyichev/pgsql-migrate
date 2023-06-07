@@ -7,13 +7,16 @@ namespace PgSqlMigrate.TypeMaps.Postgres
         private const int DecimalCapacity = 1000;
         private const int PostgresMaxVarcharSize = 10485760;
 
-        protected override void SetupTypeMaps()
+        public bool UseCiText { get; set; }
+
+        public PostgresTypeMap(bool useCiText)
         {
-            SetTypeMap(DbType.AnsiStringFixedLength, "char(255)");
-            SetTypeMap(DbType.AnsiStringFixedLength, "char($size)", int.MaxValue);
-            SetTypeMap(DbType.AnsiString, "text");
-            SetTypeMap(DbType.AnsiString, "varchar($size)", PostgresMaxVarcharSize);
-            SetTypeMap(DbType.AnsiString, "text", int.MaxValue);
+            UseCiText = useCiText;
+            SetupCustomTypeMaps();
+        }
+
+        protected override void SetupTypeMaps() 
+        {
             SetTypeMap(DbType.Binary, "bytea");
             SetTypeMap(DbType.Binary, "bytea", int.MaxValue);
             SetTypeMap(DbType.Boolean, "boolean");
@@ -31,13 +34,30 @@ namespace PgSqlMigrate.TypeMaps.Postgres
             SetTypeMap(DbType.Int32, "integer");
             SetTypeMap(DbType.Int64, "bigint");
             SetTypeMap(DbType.Single, "float4");
-            SetTypeMap(DbType.StringFixedLength, "char(255)");
-            SetTypeMap(DbType.StringFixedLength, "char($size)", int.MaxValue);
-            SetTypeMap(DbType.String, "text");
-            SetTypeMap(DbType.String, "varchar($size)", PostgresMaxVarcharSize);
-            SetTypeMap(DbType.String, "text", int.MaxValue);
             SetTypeMap(DbType.Time, "time");
             SetTypeMap(DbType.Xml, "xml");
+        }
+
+        protected void SetupCustomTypeMaps()
+        {
+            SetTypeMap(DbType.AnsiStringFixedLength, TypeOrCiText("char(255)"));
+            SetTypeMap(DbType.AnsiStringFixedLength, TypeOrCiText("char($size)"), int.MaxValue);
+            SetTypeMap(DbType.AnsiString, TypeOrCiText("text"));
+            SetTypeMap(DbType.AnsiString, TypeOrCiText("varchar($size)"), PostgresMaxVarcharSize);
+            SetTypeMap(DbType.AnsiString, TypeOrCiText("text"), int.MaxValue);
+
+            SetTypeMap(DbType.StringFixedLength, TypeOrCiText("char(255)"));
+            SetTypeMap(DbType.StringFixedLength, TypeOrCiText("char($size)"), int.MaxValue);
+            SetTypeMap(DbType.String, TypeOrCiText("text"));
+            SetTypeMap(DbType.String, TypeOrCiText("varchar($size)"), PostgresMaxVarcharSize);
+            SetTypeMap(DbType.String, TypeOrCiText("text"), int.MaxValue);
+        }
+
+        private string TypeOrCiText(string template)
+        {
+            return UseCiText
+                ? "citext"
+                : template;
         }
     }
 }

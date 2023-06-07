@@ -15,6 +15,8 @@ namespace PgSqlMigrate
         private DbConnection? _dbConnection;
         protected ITypeMap _typeMap;
 
+        private const int DefaultTimeout = 10 * 60;
+
         public DdlManagerBase(DbContext dbContext, ITypeMap typeMap)
         {
             _dbContext = dbContext;
@@ -40,6 +42,7 @@ namespace PgSqlMigrate
             using (var query = Connection.CreateCommand())
             {
                 query.CommandText = sql;
+                query.CommandTimeout = DefaultTimeout;
                 using (var reader = await query.ExecuteReaderAsync())
                 {
                     await action.Invoke(reader);
@@ -52,6 +55,7 @@ namespace PgSqlMigrate
             using (var query = Connection.CreateCommand())
             {
                 query.CommandText = sql;
+                query.CommandTimeout = DefaultTimeout;
                 using (var reader = await query.ExecuteReaderAsync())
                 {
                     action.Invoke(reader);
@@ -64,6 +68,7 @@ namespace PgSqlMigrate
             using (var query = Connection.CreateCommand())
             {
                 query.CommandText = sql;
+                query.CommandTimeout = DefaultTimeout;
                 return await query.ExecuteScalarAsync();
             }
         }
@@ -73,13 +78,14 @@ namespace PgSqlMigrate
             using (var query = Connection.CreateCommand())
             {
                 query.CommandText = sql;
+                query.CommandTimeout = DefaultTimeout;
                 if (commandTimeout.HasValue)
                     query.CommandTimeout = commandTimeout.Value;
                 await query.ExecuteNonQueryAsync();
             }
         }
 
-        protected DbConnection Connection 
+        public DbConnection Connection 
         {
             get 
             {
@@ -100,6 +106,7 @@ namespace PgSqlMigrate
         public DbCommand CreateQuery(string sql)
         {
             var query = Connection.CreateCommand();
+            query.CommandTimeout = DefaultTimeout;
             query.CommandText = sql;
             return query;
         }

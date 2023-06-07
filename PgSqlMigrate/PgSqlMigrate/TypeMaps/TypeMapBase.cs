@@ -37,11 +37,13 @@ namespace PgSqlMigrate.TypeMaps
             if (!_templates.ContainsKey(type))
                 throw new NotSupportedException($"Unsupported DbType '{type}'");
 
-            if (size == null)
+            var typeTemplates = _templates[type];
+
+            if (size == null || typeTemplates.Count() == 1 && typeTemplates.First().Key == -1)
                 return ReplacePlaceholders(_templates[type][-1], size: 0, precision);
 
             var sizeValue = size.Value;
-            foreach (var entry in _templates[type])
+            foreach (var entry in typeTemplates)
             {
                 int capacity = entry.Key;
                 string template = entry.Value;
@@ -81,6 +83,18 @@ namespace PgSqlMigrate.TypeMaps
             return value;
         }
 
+        public string GetCustomTypeMap(string definition, int? size, int? precision)
+        {
+            if (string.IsNullOrWhiteSpace(definition))
+                throw new ArgumentNullException(nameof(definition));
+
+            if (definition.Equals("geometry", StringComparison.InvariantCultureIgnoreCase)) 
+            {
+                return "citext";
+            }
+
+            throw new NotSupportedException($"Custom data type `{definition}` is not supported by `{this.GetType().FullName}`");
+        }
     }
 
 }

@@ -29,6 +29,9 @@ namespace PgSqlMigrate.TypeMaps
         [NotNull]
         string GetTypeMap(DbType type, int? size, int? precision);
 
+        [NotNull]
+        string GetCustomTypeMap(string definition, int? size, int? precision);
+
         /// <summary>
         /// Provides visibility of templates. Is used for reverse engineering
         /// </summary>

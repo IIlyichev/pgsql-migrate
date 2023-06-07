@@ -13,6 +13,8 @@ namespace PgSqlMigrate.TypeMaps.SqlServer
             SetTypeMap(DbType.DateTimeOffset, "DATETIMEOFFSET($size)", maxSize: 7);
             SetTypeMap(DbType.Date, "DATE");
             SetTypeMap(DbType.Time, "TIME");
+
+            SetTypeMap(DbType.Double, "FLOAT");
         }
     }
 }

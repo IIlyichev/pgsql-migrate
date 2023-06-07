@@ -18,7 +18,6 @@ namespace PgSqlMigrate.TypeMaps
         {
             var withParamsRegex = new Regex(@"(?'datatype'[^\(]+)\((?'params'[^\)]+)\)");
 
-            //var result = new Dictionary<string, DbType>();
             var dts = new List<DataTypeNameWithTemplates>();
 
             var dbTypes = typeMap.Templates.Keys;
