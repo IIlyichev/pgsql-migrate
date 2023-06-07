@@ -8,6 +8,13 @@ namespace PgSqlMigrate.DbObjectsRenaming
     public interface IDbObjectRenamingProvider
     {
         /// <summary>
+        /// Get new schema name
+        /// </summary>
+        /// <param name="oldName"></param>
+        /// <returns></returns>
+        string GetSchemaName(string oldName);
+
+        /// <summary>
         /// Get new table name
         /// </summary>
         /// <param name="schemaName"></param>

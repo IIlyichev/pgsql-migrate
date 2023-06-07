@@ -99,5 +99,10 @@ namespace PgSqlMigrate.DbObjectsRenaming
                 identity.LastValue
             );
         }
+
+        public string GetSchemaName(string oldName)
+        {
+            return oldName;
+        }
     }
 }

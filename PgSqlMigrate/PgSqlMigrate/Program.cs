@@ -1,5 +1,6 @@
 ﻿using log4net;
 using log4net.Config;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NDesk.Options;
 using PgSqlMigrate.DbObjectsRenaming;
 using PgSqlMigrate.Models;
@@ -119,10 +120,13 @@ namespace PgSqlMigrate
                                         Log($"Schema '{schema.Name}' is empty - skipped");
                                         continue;
                                     }
-                                    
                                     Log($"### Schema: {schema.Name}");
 
-                                    await pgManager.CreateSchemaAsync(schema.Name);
+                                    var dstSchemaName = renamingProvider.GetSchemaName(schema.Name);
+                                    if (dstSchemaName != schema.Name)
+                                        Log($"New schema name is: {dstSchemaName}");
+
+                                    await pgManager.CreateSchemaAsync(dstSchemaName);
 
                                     Log("Get tables...");
                                     var tables = await sqlManager.GetTableNamesAsync(schema.Name);
@@ -143,7 +147,7 @@ namespace PgSqlMigrate
                                         var dstTableName = renamingProvider.GetTableName(schema.Name, table);
                                         var dstCols = GetRenamedColumns(cols, renamingProvider);
 
-                                        await pgManager.CreateTableAsync(schema.Name, dstTableName, dstCols);
+                                        await pgManager.CreateTableAsync(dstSchemaName, dstTableName, dstCols);
 
                                         // flow data
                                         if (!schemaOnly) 
@@ -384,10 +388,11 @@ namespace PgSqlMigrate
             {
                 var srcQuery = GenerateSelectQuery(src, schema, table, columns);
 
+                var dstSchema = renamingProvider.GetSchemaName(schema);
                 var dstTableName = renamingProvider.GetTableName(schema, table);
                 var dstColumns = GetRenamedColumns(columns, renamingProvider);
 
-                var dstSql = GenerateInsertQuery(dst, schema, dstTableName, dstColumns);
+                var dstSql = GenerateInsertQuery(dst, dstSchema, dstTableName, dstColumns);
 
                 var totalRows = Convert.ToInt32(await src.ExecuteScalarAsync($"select count(1) from {src.GetFullName(schema, table)}"));
 
